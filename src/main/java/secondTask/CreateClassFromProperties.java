@@ -38,7 +38,8 @@ public class CreateClassFromProperties {
 				for (Annotation annotation : annotations) {
 					if (annotation.annotationType().equals(Property.class)) {
 						Property property = (Property) annotation;
-						if (property.information().equals("EMPTY") && properties.getProperty(field.getName()) != null && property.format().equals("N/A")) {
+						if (property.information().equals("EMPTY") && properties.getProperty(field.getName())
+								!= null && property.format().equals("EMPTY")) {
 							setParameters(properties, type, field);
 						} else if (property.information().equals("EMPTY")
 								&& properties.getProperty(field.getName()) != null && !property.format()
@@ -49,7 +50,7 @@ public class CreateClassFromProperties {
 								field.set(type, properties.getProperty(property.information()));
 							} else if (field.getType() == int.class) {
 								field.set(type, parseInt(properties.getProperty(property.information())));
-							} else if (field.getType() == Instant.class && !property.format().equals("N/A")) {
+							} else if (field.getType() == Instant.class && !property.format().equals("EMPTY")) {
 								try {
 									SimpleDateFormat format = new SimpleDateFormat(property.format());
 									Instant instant = format.parse(properties.getProperty(property.information()))
@@ -69,19 +70,15 @@ public class CreateClassFromProperties {
 
 					}
 				}
-			} else if (properties.getProperty(field.getName()) != null) {
-				setParameters(properties, type, field);
 			} else {
-				throw new NotSuchPropertyKeyException();
+				ofNullable(properties.getProperty(field.getName())).ifPresentOrElse((t) -> {
+					try {
+						setParameters(properties, type, field);
+					} catch (IllegalAccessException | ParseException e) {
+						e.printStackTrace();
+					}
+				}, NotSuchPropertyKeyException::new);
 			}
-			ofNullable(properties.getProperty(field.getName())).ifPresentOrElse((t) -> {
-				try {
-					setParameters(properties, type, field);
-				} catch (IllegalAccessException | ParseException e) {
-					e.printStackTrace();
-				}
-			}, NotSuchPropertyKeyException::new);
-
 		}
 		return type;
 	}
