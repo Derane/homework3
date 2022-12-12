@@ -21,9 +21,9 @@ public class CreateClassFromPropertiesTests {
 			e.printStackTrace();
 		}
 
-		assertEquals("value1", testFileFromPropert.getStringProperty());
+		assertEquals("string", testFileFromPropert.getStringProperty());
 		assertEquals(10, testFileFromPropert.getIntegerProperty());
-		assertEquals(Instant.parse("2022-11-28T22:18:30Z"), testFileFromPropert.getTimeProperty());
+		assertEquals(Instant.parse("2022-12-qqT22:18:30Z"), testFileFromPropert.getTimeProperty());
 	}
 
 }

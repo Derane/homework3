@@ -72,9 +72,9 @@ public class CreateClassFromProperties {
 					}
 				}
 			} else {
-				ofNullable(properties.getProperty(field.getName())).ifPresentOrElse((t) -> {
+				ofNullable(properties.getProperty(field.getName())).ifPresentOrElse((aType) -> {
 					try {
-						setParameters(properties, type, field);
+						setParameters(properties, aType, field);
 					} catch (IllegalAccessException | ParseException e) {
 						e.printStackTrace();
 					}
@@ -84,17 +84,17 @@ public class CreateClassFromProperties {
 		return type;
 	}
 
-	private static <T> void setParameters(Properties properties, T t, Field field)
+	private static <T> void setParameters(Properties properties, T type, Field field)
 			throws IllegalAccessException, ParseException {
 
 		if (field.getType() == String.class) {
-			field.set(t, properties.getProperty(field.getName()));
+			field.set(type, properties.getProperty(field.getName()));
 		} else if (field.getType() == int.class) {
-			field.set(t, parseInt(properties.getProperty(field.getName())));
+			field.set(type, parseInt(properties.getProperty(field.getName())));
 		} else if (field.getType() == Instant.class) {
 			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy MM:ss");
 			Instant instant = format.parse(properties.getProperty(field.getName())).toInstant();
-			field.set(t, instant);
+			field.set(type, instant);
 		}
 	}
 	@SneakyThrows
