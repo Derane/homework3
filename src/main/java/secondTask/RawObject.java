@@ -8,10 +8,10 @@ public class RawObject {
 
 	private String stringProperty;
 
-	@Property(name = "integerProperty")
+	@Property(information = "integerProperty")
 	private int integerProperty;
 
-	@Property(name = "timeProperty", format = "dd.MM.yyyy mm:ss")
+	@Property(information = "timeProperty", format = "dd.MM.yyyy mm:ss")
 	private Instant timeProperty;
 
 	public String getStringProperty() {

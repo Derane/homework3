@@ -9,7 +9,8 @@ import java.lang.annotation.Target;
 @Target(value = ElementType.FIELD)
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface Property {
-	String name() default "N/A";
 
-	String format() default "N/A";
+	String information() default "EMPTY";
+
+	String format() default "EMPTY";
 }

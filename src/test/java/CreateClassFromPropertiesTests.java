@@ -1,6 +1,6 @@
 import org.junit.Test;
 import secondTask.RawObject;
-import secondTask.ParseProperties;
+import secondTask.CreateClassFromProperties;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -8,7 +8,7 @@ import java.time.Instant;
 
 import static org.junit.Assert.assertEquals;
 
-public class ParsePropertiesTests {
+public class CreateClassFromPropertiesTests {
 
 
 	@Test
@@ -16,7 +16,7 @@ public class ParsePropertiesTests {
 		Path path = Paths.get("src/main/java/secondTask/application.properties");
 		RawObject test = new RawObject();
 		try {
-			test = ParseProperties.loadFromProperties(test.getClass(), path);
+			test = CreateClassFromProperties.loadFromProperties(test.getClass(), path);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
