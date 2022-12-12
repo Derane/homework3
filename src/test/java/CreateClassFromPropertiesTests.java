@@ -14,16 +14,16 @@ public class CreateClassFromPropertiesTests {
 	@Test
 	public void parsePropertiesTest() {
 		Path path = Paths.get("src/main/java/secondTask/application.properties");
-		RawObject test = new RawObject();
+		RawObject testFileFromPropert = new RawObject();
 		try {
-			test = CreateClassFromProperties.loadFromProperties(test.getClass(), path);
+			testFileFromPropert = CreateClassFromProperties.loadFromProperties(testFileFromPropert.getClass(), path);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
-		assertEquals("value1", test.getStringProperty());
-		assertEquals(10, test.getIntegerProperty());
-		assertEquals(Instant.parse("2022-11-28T22:18:30Z"), test.getTimeProperty());
+		assertEquals("value1", testFileFromPropert.getStringProperty());
+		assertEquals(10, testFileFromPropert.getIntegerProperty());
+		assertEquals(Instant.parse("2022-11-28T22:18:30Z"), testFileFromPropert.getTimeProperty());
 	}
 
 }

@@ -1,5 +1,6 @@
 package secondTask;
 
+import lombok.SneakyThrows;
 import secondTask.annotation.Property;
 import secondTask.exception.NotSuchPropertyKeyException;
 
@@ -96,22 +97,17 @@ public class CreateClassFromProperties {
 			field.set(t, instant);
 		}
 	}
-
-	private static <T> void setParamsWithPropertyFormat(Properties properties, Property property, T t, Field field)
-			throws IllegalAccessException {
+	@SneakyThrows
+	private static <T> void setParamsWithPropertyFormat(Properties properties, Property property, T type, Field field) {
 
 		if (field.getType() == String.class) {
-			field.set(t, properties.getProperty(field.getName()));
+			field.set(type, properties.getProperty(field.getName()));
 		} else if (field.getType() == int.class) {
-			field.set(t, parseInt(properties.getProperty(field.getName())));
+			field.set(type, parseInt(properties.getProperty(field.getName())));
 		} else if (field.getType() == Instant.class) {
-			try {
 				SimpleDateFormat format = new SimpleDateFormat(property.format());
 				Instant instant = format.parse(properties.getProperty(field.getName())).toInstant();
-				field.set(t, instant);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
+				field.set(type, instant);
 		}
 	}
 
