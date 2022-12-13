@@ -11,12 +11,13 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.nio.file.Path;
-import java.text.ParseException;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.util.Properties;
 
 import static java.lang.Integer.parseInt;
+import static java.util.Arrays.stream;
 import static java.util.Optional.ofNullable;
 
 public class CreateClassFromProperties {
@@ -32,68 +33,73 @@ public class CreateClassFromProperties {
 		T type = constructor.newInstance();
 
 		Field[] fields = clazz.getDeclaredFields();
-		for (Field field : fields) {
+		stream(fields).forEach(field -> {
 			field.setAccessible(true);
 			Annotation[] annotations = field.getDeclaredAnnotations();
 			if (annotations.length != 0) {
-				for (Annotation annotation : annotations) {
-					if (annotation.annotationType() == Property.class) {
-						Property property = (Property) annotation;
-						if (property.information().equals("EMPTY") && properties.getProperty(field.getName())
-								!= null && property.format().equals("EMPTY")) {
-							setParameters(properties, type, field);
-						} else if (property.information().equals("EMPTY")
-								&& properties.getProperty(field.getName()) != null && !property.format()
-								.equals("EMPTY")) {
-							setParametersWithProps(properties, property, type, field);
-						} else if (properties.getProperty(property.information()) != null) {
-							if (field.getType() == String.class) {
-								field.set(type, properties.getProperty(property.information()));
-							} else if (field.getType() == int.class) {
-								field.set(type, parseInt(properties.getProperty(property.information())));
-							} else if (field.getType() == Instant.class && !property.format().equals("EMPTY")) {
-								try {
-									SimpleDateFormat format = new SimpleDateFormat(property.format());
-									Instant instant = format.parse(properties.getProperty(property.information()))
-											.toInstant();
-									field.set(type, instant);
-								} catch (Exception e) {
-									e.printStackTrace();
-								}
-							} else if (field.getType() == Instant.class) {
-								SimpleDateFormat format = new SimpleDateFormat(property.format());
-								Instant instant = format.parse(properties.getProperty(property.information())).toInstant();
-								field.set(type, instant);
-							}
-						} else {
-							throw new NotSuchPropertyKeyException();
-						}
-
-					}
-				}
+				setWithAnnotation(properties, type, field, annotations);
 			} else {
-				ofNullable(properties.getProperty(field.getName()))
-						.ifPresentOrElse(then -> {
-							try {
-								setParameters(properties, type, field);
-							} catch (IllegalAccessException | ParseException e) {
-								e.printStackTrace();
-							}
-						}, NotSuchPropertyKeyException::new);
+				setWithoutAnnotation(properties, type, field);
 			}
-		}
+		});
 		return type;
 	}
 
-	private static <T> void setParameters(Properties properties, T type, Field field)
-			throws IllegalAccessException, ParseException {
+	@SneakyThrows
+	private static <T> void setWithAnnotation(Properties properties, T type, Field field, Annotation[] annotations) {
+		for (Annotation annotation : annotations) {
+			if (annotation.annotationType() == Property.class) {
+				Property property = (Property) annotation;
+				if (property.information().equals("EMPTY") && properties.getProperty(field.getName())
+						!= null && property.format().equals("EMPTY")) {
+					setParameters(properties, type, field);
+				} else if (property.information().equals("EMPTY")
+						&& properties.getProperty(field.getName()) != null && !property.format()
+						.equals("EMPTY")) {
+					setParametersWithProps(properties, property, type, field);
+				} else if (properties.getProperty(property.information()) != null) {
+					if (field.getType() == String.class) {
+						field.set(type, properties.getProperty(property.information()));
+					} else if (field.getType() == int.class) {
+						field.set(type, parseInt(properties.getProperty(property.information())));
+					} else if (field.getType() == Instant.class && !property.format().equals("EMPTY")) {
+						try {
+							SimpleDateFormat format = new SimpleDateFormat(property.format());
+							Instant instant = format.parse(properties.getProperty(property.information()))
+									.toInstant();
+							field.set(type, instant);
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
+					} else if (field.getType() == Instant.class) {
+						SimpleDateFormat format = new SimpleDateFormat(property.format());
+						Instant instant = format.parse(properties.getProperty(property.information())).toInstant();
+						field.set(type, instant);
+					}
+				} else {
+					throw new NotSuchPropertyKeyException();
+				}
+
+			}
+		}
+	}
+
+	private static <T> void setWithoutAnnotation(Properties properties, T type, Field field) {
+		ofNullable(properties.getProperty(field.getName()))
+				.ifPresentOrElse(then -> {
+					setParameters(properties, type, field);
+				}, NotSuchPropertyKeyException::new);
+	}
+
+	@SneakyThrows
+	private static <T> void setParameters(Properties properties, T type, Field field) {
 
 		if (field.getType() == String.class) {
 			field.set(type, properties.getProperty(field.getName()));
 		} else if (field.getType() == int.class) {
 			field.set(type, parseInt(properties.getProperty(field.getName())));
 		} else if (field.getType() == Instant.class) {
-			SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy MM:ss");
+			DateFormat format = new SimpleDateFormat("dd.MM.yyyy MM:ss");
 			Instant instant = format.parse(properties.getProperty(field.getName())).toInstant();
 			field.set(type, instant);
 		}
@@ -107,7 +113,7 @@ public class CreateClassFromProperties {
 		} else if (field.getType() == int.class) {
 			field.set(type, parseInt(properties.getProperty(field.getName())));
 		} else if (field.getType() == Instant.class) {
-			SimpleDateFormat format = new SimpleDateFormat(property.format());
+			DateFormat format = new SimpleDateFormat(property.format());
 			Instant instant = format.parse(properties.getProperty(field.getName())).toInstant();
 			field.set(type, instant);
 		}
