@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Properties;
 
 import static java.lang.Integer.parseInt;
@@ -50,19 +51,18 @@ public class CreateClassFromProperties {
 		for (Annotation annotation : annotations) {
 			if (annotation.annotationType() == Property.class) {
 				Property property = (Property) annotation;
-				if (property.information().equals("EMPTY") && properties.getProperty(field.getName())
-						!= null && property.format().equals("EMPTY")) {
+				if (Objects.equals(property.information(), "EMPTY") && properties.getProperty(field.getName())
+						!= null && Objects.equals(property.format(), "EMPTY")) {
 					setParameters(properties, type, field);
-				} else if (property.information().equals("EMPTY")
-						&& properties.getProperty(field.getName()) != null && !property.format()
-						.equals("EMPTY")) {
+				} else if (Objects.equals(property.information(), "EMPTY")
+						&& properties.getProperty(field.getName()) != null && !Objects.equals(property.format(), "EMPTY")) {
 					setParametersWithProps(properties, property, type, field);
 				} else if (properties.getProperty(property.information()) != null) {
 					if (field.getType() == String.class) {
 						field.set(type, properties.getProperty(property.information()));
 					} else if (field.getType() == int.class) {
 						field.set(type, parseInt(properties.getProperty(property.information())));
-					} else if (field.getType() == Instant.class && !property.format().equals("EMPTY")) {
+					} else if (field.getType() == Instant.class && !Objects.equals(property.format(), "EMPTY")) {
 						try {
 							SimpleDateFormat format = new SimpleDateFormat(property.format());
 							Instant instant = format.parse(properties.getProperty(property.information()))
